@@ -1,7 +1,6 @@
 import torch.nn as nn
 import torch
 from torchvision import models
-
 class AlexNet(nn.Module):
     def __init__(self, model_type):
         super(AlexNet, self).__init__()
@@ -70,13 +69,6 @@ class O3N(nn.Module):
         #print(input.shape)
         Xs = self.alexnet(input)
         #Xs = Xs.view([shape[0] * shape[1], shape[5], -1]).mean(dim=1).squeeze()
-<<<<<<< HEAD
-        Xs = Xs.view([shape[0], shape[1], -1])
-        #print(Xs.shape)
-        X = self.Fusion(Xs)
-        #print(X.shape)
-        X = self.classifier(X)
-=======
         _, Xs = self.gcn.extract_feature(input)
         Xs = F.avg_pool2d(Xs, Xs.size()[2:])
         Xs = Xs.view(shape[0] * shape[1], shape[5], -1).mean(dim=1)
@@ -87,7 +79,6 @@ class O3N(nn.Module):
         #print(X.shape)
         #X = self.classifier(X)
         X = X.view(shape[0], -1)
->>>>>>> remotes/origin/master
         return X
 
     def Fusion(self, Xs):
