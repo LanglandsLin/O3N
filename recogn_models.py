@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
 from torchvision import models
-
+from net.st_gcn import Model as GCN
 class AlexNet(nn.Module):
     def __init__(self, model_type):
         super(AlexNet, self).__init__()
@@ -48,20 +48,22 @@ class AlexNet(nn.Module):
 class O3N(nn.Module):
     def __init__(self, model_type, output_size):
         super(O3N, self).__init__()
-        self.alexnet = AlexNet(model_type)
-        self.classifier = nn.Sequential(
+        #self.alexnet = AlexNet(model_type)
+        #self.classifier = nn.Sequential(
                     #nn.Dropout(),
-                    nn.Linear(4096, 128),
+                    #nn.Linear(4096, 128),
                     #nn.ReLU(inplace=True),
                     #nn.Dropout(),
-                    nn.Linear(128, output_size))
+                    #nn.Linear(128, output_size))
                     #nn.ReLU(inplace=True))
+        self.gcn = GCN(3, output_size, {'layout': 'ntu-rgb+d', 'strategy': 'spatial'}, True)
         self.video_num = output_size
 
 
     def forward(self, input):
-        shape = input.shape
-        input = input.view(*shape[0:3], shape[3] * shape[4])
-        X = self.alexnet(input)
-        X = self.classifier(X)
+        #shape = input.shape
+        #input = input.view(*shape[0:3], shape[3] * shape[4])
+        #X = self.alexnet(input)
+        #X = self.classifier(X)
+        X = self.gcn(input)
         return X

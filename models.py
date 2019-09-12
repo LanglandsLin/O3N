@@ -48,14 +48,16 @@ class AlexNet(nn.Module):
 class O3N(nn.Module):
     def __init__(self, model_type, output_size):
         super(O3N, self).__init__()
-        self.alexnet = AlexNet(model_type)
-        self.classifier = nn.Sequential(
+        #self.alexnet = AlexNet(model_type)
+        #self.classifier = nn.Sequential(
                     #nn.Dropout(),
-                    nn.Linear(4096, 128),
+                    #nn.Linear(4096, 128),
                     #nn.ReLU(inplace=True),
                     #nn.Dropout(),
-                    nn.Linear(128, output_size))
+                    #nn.Linear(128, output_size))
                     #nn.ReLU(inplace=True))
+        self.gcn = GCN(3, output_size, {'layout': 'ntu-rgb+d', 'strategy': 'spatial'}, True)
+        self.fcn = nn.Conv2d(256, output_size, kernel_size=1)
         self.video_num = output_size
 
 
@@ -68,11 +70,24 @@ class O3N(nn.Module):
         #print(input.shape)
         Xs = self.alexnet(input)
         #Xs = Xs.view([shape[0] * shape[1], shape[5], -1]).mean(dim=1).squeeze()
+<<<<<<< HEAD
         Xs = Xs.view([shape[0], shape[1], -1])
         #print(Xs.shape)
         X = self.Fusion(Xs)
         #print(X.shape)
         X = self.classifier(X)
+=======
+        _, Xs = self.gcn.extract_feature(input)
+        Xs = F.avg_pool2d(Xs, Xs.size()[2:])
+        Xs = Xs.view(shape[0] * shape[1], shape[5], -1).mean(dim=1)
+        Xs = Xs.view([shape[0], shape[1], -1])
+        #print(Xs.shape)
+        X = self.Fusion(Xs)
+        X = self.fcn(X)
+        #print(X.shape)
+        #X = self.classifier(X)
+        X = X.view(shape[0], -1)
+>>>>>>> remotes/origin/master
         return X
 
     def Fusion(self, Xs):
